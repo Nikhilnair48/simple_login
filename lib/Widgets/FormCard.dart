@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FormCard extends StatefulWidget {
-  const FormCard({this.setUserCallback, this.setPassCallback});
+  const FormCard({this.setUserCallback, this.setPassCallback, this.userValidation, this.passwordValidation});
   final usernameCallback setUserCallback;
   final passwordCallback setPassCallback;
+  final bool userValidation, passwordValidation;
 
   @override
   _FormCardState createState() => new _FormCardState();
@@ -50,8 +51,8 @@ class _FormCardState extends State<FormCard> {
             ),
             TextField(
               decoration: InputDecoration(
-                  hintText: "username",
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0)),
+                  hintText: !widget.userValidation ? "" : "Please enter a username",
+                  hintStyle: !widget.userValidation ? TextStyle(color: Colors.grey, fontSize: 12.0) : TextStyle(color: Colors.red, fontSize: 12.0)),
               onChanged: (text) {
                   widget.setUserCallback(text);
               },
@@ -66,8 +67,8 @@ class _FormCardState extends State<FormCard> {
             TextField(
               obscureText: true,
               decoration: InputDecoration(
-                  hintText: "Password",
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0)),
+                  hintText: !widget.passwordValidation ? "" : "Please enter a password",
+                  hintStyle: !widget.passwordValidation ? TextStyle(color: Colors.grey, fontSize: 12.0) : TextStyle(color: Colors.red, fontSize: 12.0)),
               onChanged: (text) {
                   widget.setPassCallback(text);
               },

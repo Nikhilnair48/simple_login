@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'Widgets/FormCard.dart';
 
 import 'package:http/http.dart' as http;
@@ -18,6 +19,9 @@ class _MyAppState extends State<MyApp> {
   bool _isSelected = false;
   var username = "";
   var password = "";
+  var userNameError = false;
+  var passwordError = false;
+  var message = "";
 
   void _radio() {
     setState(() {
@@ -62,71 +66,31 @@ class _MyAppState extends State<MyApp> {
       );
 
   login() async {
-    print("https://1u9a2o95k8.execute-api.us-east-1.amazonaws.com/dev/my_simple_auth_app?username=$username&password=$password");
-    var response = await http.get(
-      'https://1u9a2o95k8.execute-api.us-east-1.amazonaws.com/dev/my_simple_auth_app?username=$username&password=$password'
-    );
-    print(response.statusCode);
-    if(response.statusCode == 200) {
-      return AlertDialog(
-          title: new Text("Alert Dialog title"),
-          content: new Text("Alert Dialog body"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-    } else {
-      return AlertDialog(
-          title: new Text("Alert Dialog title"),
-          content: new Text("Alert Dialog body"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
+    var paramOne = this.username.trim();
+    var paramTwo = this.password.trim();
+    
+    if(paramOne.length == 0)
+      setState(() { this.userNameError = true; });
+    else if(paramTwo.length == 0)
+      setState(() { this.passwordError = true; });
+    else {
+      var response = await http.get(
+        'https://1u9a2o95k8.execute-api.us-east-1.amazonaws.com/dev/my_simple_auth_app?username=$paramOne&password=$paramTwo'
+      );
+      print(response.statusCode);
+
+      Fluttertoast.showToast(
+        msg: response.body.substring(1, response.body.length-2),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+      );
+
+      setState(() { this.userNameError = false; this.passwordError = false; });
     }
-  }
-
-  showAlertDialog(BuildContext context) {
-
-    // set up the buttons
-    Widget cancelButton = FlatButton(
-      child: Text("Cancel"),
-      onPressed:  () {},
-    );
-    Widget continueButton = FlatButton(
-      child: Text("Continue"),
-      onPressed:  () {},
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: Text("AlertDialog"),
-      content: Text("Would you like to continue learning how to use Flutter alerts?"),
-      actions: [
-        cancelButton,
-        continueButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
   }
 
   @override
@@ -171,7 +135,7 @@ class _MyAppState extends State<MyApp> {
                   SizedBox(
                     height: ScreenUtil.getInstance().setHeight(180),
                   ),
-                  FormCard(setUserCallback: this.setUsername, setPassCallback: this.setPassword),
+                  FormCard(setUserCallback: this.setUsername, setPassCallback: this.setPassword, userValidation: this.userNameError, passwordValidation: this.passwordError),
                   SizedBox(height: ScreenUtil.getInstance().setHeight(40)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
